@@ -3,6 +3,7 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,14 +26,22 @@ public class FileController {
     UserService userService;
 
     @PostMapping()
-    public String saveFile(MultipartFile fileUpload) throws IOException {
+    public String saveFile(MultipartFile fileUpload) throws IOException, FileSizeLimitExceededException {
         String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getUser(username);
+
+        long maxSize = 1048576;
+
+        if(fileUpload.getSize() > maxSize) {
+            throw new FileSizeLimitExceededException("Cannot upload file more than 1 mb", fileUpload.getSize(), maxSize);
+        }
 
         if (fileUpload.isEmpty()) {
             return "redirect:/result?error";
         }
+
         fileService.addFile(fileUpload, user.getUserid());
+
         return "redirect:/result?success";
     }
 
