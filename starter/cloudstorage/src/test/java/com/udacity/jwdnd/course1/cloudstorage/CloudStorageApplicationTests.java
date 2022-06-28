@@ -45,6 +45,28 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("Login", driver.getTitle());
 	}
 
+	@Test
+	public void getSignupPage() {
+		driver.get("http://localhost:" + this.port + "/signup");
+		Assertions.assertEquals("Sign Up", driver.getTitle());
+	}
+
+	@Test
+	public void verifyAuthorizedAccess() {
+		String username = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
+		doMockSignUp("Redirection","Test",username,"123");
+		doLogIn(username, "123");
+		Assertions.assertEquals("http://localhost:" + this.port + "/", driver.getCurrentUrl());
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("buttonLogout")));
+		WebElement buttonLogout = driver.findElement(By.id("buttonLogout"));
+		buttonLogout.click();
+
+		driver.get("http://localhost:" + this.port + "/");
+		Assertions.assertNotEquals("Home", driver.getTitle());
+	}
+
 	/**
 	 * PLEASE DO NOT DELETE THIS method.
 	 * Helper method for Udacity-supplied sanity checks.
