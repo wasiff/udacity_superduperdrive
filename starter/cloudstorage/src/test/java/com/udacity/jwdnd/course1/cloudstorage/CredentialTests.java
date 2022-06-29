@@ -133,7 +133,12 @@ public class CredentialTests {
         credentialUsername.clear();
         credentialUsername.sendKeys(randomUsername+"edited");
 
+        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-password")));
+        credentialPassword = driver.findElement(By.id("credential-password"));
 
+        String decryptedPassword = encryptionService.decryptValue(savedCredential.getPassword(), savedCredential.getKey());
+        Thread.sleep(5000);
+        Assertions.assertEquals(decryptedPassword,credentialPassword.getAttribute("value"));
 
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialSaveChangesBtn")));
         credentialSaveChangesBtn = driver.findElement(By.id("credentialSaveChangesBtn"));
