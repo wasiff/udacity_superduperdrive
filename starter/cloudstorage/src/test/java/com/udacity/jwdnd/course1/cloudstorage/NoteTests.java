@@ -4,6 +4,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -133,14 +134,14 @@ public class NoteTests {
 
         rows = noteTable.findElements(By.tagName("tr"));
 
-        WebElement row = rows.get(rows.size()-1);
+        WebElement row = rows.get(rows.size()-1); // last row
 
         WebElement titleCol = row.findElement(By.tagName("th"));
         Assertions.assertEquals(randomTitle+"edited", titleCol.getText());
 
         // checking delete
         WebElement buttonsCol = row.findElement(By.tagName("td"));
-        WebElement deleteButton = firstColumn.findElement(By.className("delete-btn"));
+        WebElement deleteButton = buttonsCol.findElement(By.className("delete-btn"));
         deleteButton.click();
 
         driver.get("http://localhost:" + this.port + "/");
@@ -154,11 +155,14 @@ public class NoteTests {
         noteTable = driver.findElement(By.id("noteTable"));
 
         rows = noteTable.findElements(By.tagName("tr"));
-
         row = rows.get(rows.size()-1);
 
-        titleCol = row.findElement(By.tagName("th"));
-
+        try {
+            titleCol = row.findElement(By.tagName("th"));
+        }catch (NoSuchElementException e) {
+            Assertions.assertNotEquals(randomTitle+"edited","");
+            return;
+        }
         Assertions.assertNotEquals(randomTitle+"edited",titleCol.getText());
     }
 
